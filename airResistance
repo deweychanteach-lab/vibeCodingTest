@@ -1,0 +1,145 @@
+
+!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>降落傘與空氣阻力大冒險</title>
+<style>
+body{
+font-family:Arial,sans-serif;
+background:linear-gradient(#87CEEB,#E8F7FF);
+margin:0;
+padding:20px;
+text-align:center;
+}
+.container{
+max-width:900px;
+margin:auto;
+background:white;
+padding:20px;
+border-radius:20px;
+box-shadow:0 4px 15px rgba(0,0,0,.2);
+}
+.controls{
+display:flex;
+justify-content:center;
+gap:20px;
+flex-wrap:wrap;
+margin:15px 0;
+}
+canvas{
+border:2px solid #4CAF50;
+border-radius:15px;
+background:linear-gradient(#bde8ff,#ffffff);
+}
+button{
+padding:12px 24px;
+border:none;
+border-radius:12px;
+background:#4CAF50;
+color:white;
+font-size:16px;
+cursor:pointer;
+}
+button:hover{background:#43a047;}
+.info{
+background:#f4f9ff;
+padding:12px;
+border-radius:12px;
+margin-top:15px;
+}
+.score{
+font-size:20px;
+font-weight:bold;
+color:#ff5722;
+}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>🪂 降落傘與空氣阻力大冒險</h1>
+<p>探索不同降落傘大小對下落速度的影響！</p>
+
+<div class="controls">
+<div>
+<label>降落傘大小：</label>
+<input type="range" id="size" min="20" max="120" value="60">
+<span id="sizeValue">60</span>
+</div>
+<button onclick="startExperiment()">開始實驗</button>
+</div>
+
+<canvas id="lab" width="700" height="400"></canvas>
+
+<div class="info">
+<h3>🔬 科學知識</h3>
+<p>降落傘越大，接觸空氣的面積越大，產生的空氣阻力越大，因此下降速度會較慢。</p>
+<p id="result">等待實驗開始...</p>
+<p class="score">科學家積分：<span id="score">0</span></p>
+</div>
+</div>
+
+<script>
+const canvas=document.getElementById('lab');
+const ctx=canvas.getContext('2d');
+const slider=document.getElementById('size');
+const sizeValue=document.getElementById('sizeValue');
+let score=0;
+
+slider.oninput=()=>{
+sizeValue.textContent=slider.value;
+};
+
+function drawParachute(x,y,size){
+ctx.beginPath();
+ctx.arc(x,y,size,Math.PI,0);
+ctx.fillStyle='red';
+ctx.fill();
+
+ctx.beginPath();
+ctx.moveTo(x-size,y);
+ctx.lineTo(x,y+80);
+ctx.lineTo(x+size,y);
+ctx.stroke();
+
+ctx.fillStyle='blue';
+ctx.fillRect(x-10,y+80,20,30);
+}
+
+function startExperiment(){
+let size=parseInt(slider.value);
+let y=50;
+let speed=8-(size/20);
+if(speed<1.5) speed=1.5;
+
+const start=performance.now();
+
+function animate(){
+ctx.clearRect(0,0,canvas.width,canvas.height);
+
+drawParachute(canvas.width/2,y,size);
+
+y+=speed;
+
+if(y<280){
+requestAnimationFrame(animate);
+}else{
+let time=((performance.now()-start)/1000).toFixed(1);
+score+=10;
+
+document.getElementById('score').textContent=score;
+
+document.getElementById('result').innerHTML=
+`✅ 降落傘大小：${size}<br>⏱ 下落時間：約 ${time} 秒<br><b>${size>70?'大降落傘下降較慢，空氣阻力較大！':'小降落傘下降較快，空氣阻力較小！'}</b>`;
+}
+}
+
+animate();
+}
+
+ctx.font='24px Arial';
+ctx.fillText('按「開始實驗」進行探究',180,200);
+</script>
+</body>
+</html>
